@@ -7,9 +7,14 @@
 # Note: The counts of pairs for the resulting file will differ somewhat
 #       from the original table
 
+# input = input file name
+# output = output file name (optional)
+# digits = number of digits to round (if NULL, no rounding)
+# match_count = If TRUE, ensure that number of rows in output
+#               matches the count in the input
 
 interp_pearson <-
-    function(input, output=NULL, digits=1)
+    function(input, output=NULL, digits=1, match_count=TRUE)
 {
     x <- as.matrix(read.table(input, check.names=FALSE))
 
@@ -18,11 +23,14 @@ interp_pearson <-
     col_name <- strsplit(grep("^#\\s+cols:", comments, value=TRUE), "\\s+")[[1]][3]
     row_name <- strsplit(grep("^#\\s+rows:", comments, value=TRUE), "\\s+")[[1]][3]
 
-    y <- x
-    for(i in 1:nrow(x)) {
-        for(j in 1:ncol(x)) {
-            y[i,j] <- (x[i,j] %/% 1) + as.numeric(runif(1) < x[i,j] %% 1)
+    y <- round(x)
+    while(sum(x) != sum(y)) { # repeat until we get matching counts
+        for(i in 1:nrow(x)) {
+            for(j in 1:ncol(x)) {
+                y[i,j] <- (x[i,j] %/% 1) + as.numeric(runif(1) < x[i,j] %% 1)
+            }
         }
+        if(!match_count) break
     }
 
     z <- NULL
