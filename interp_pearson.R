@@ -9,9 +9,14 @@
 
 
 interp_pearson <-
-    function(input, output=NULL, col.names=NULL, digits=1)
+    function(input, output=NULL, digits=1)
 {
     x <- as.matrix(read.table(input, check.names=FALSE))
+
+    comments <- readLines(input)
+    comments <- grep("^#", comments, value=TRUE) # just save the comments
+    col_name <- strsplit(grep("^#\\s+cols:", comments, value=TRUE), "\\s+")[[1]][3]
+    row_name <- strsplit(grep("^#\\s+rows:", comments, value=TRUE), "\\s+")[[1]][3]
 
     y <- x
     for(i in 1:nrow(x)) {
@@ -33,8 +38,7 @@ interp_pearson <-
         }
     }
 
-    if(!is.null(col.names))
-        dimnames(z) <- list(NULL, col.names)
+    dimnames(z) <- list(NULL, c(col_name, row_name))
 
     z <- z+runif(length(z),0,1)
 
@@ -42,11 +46,10 @@ interp_pearson <-
         z <- round(z, digits)
 
     if(!is.null(output)) {
-        comments <- readLines(input)
-        comments <- grep("^#", z, value=TRUE) # just save the comments
+        comments <- comments[!grepl("^#\\s+cols:", comments)]
+        comments <- comments[!grepl("^#\\s+rows:", comments)]
 
         cat(comments, file=output)
-
         write.table(z, output, row.names=FALSE, col.names=TRUE,
                 quote=FALSE, sep=",", append=TRUE)
         return(invisible(z))
