@@ -40,7 +40,7 @@ interp_pearson <-
 
     dimnames(z) <- list(NULL, c(col_name, row_name))
 
-    z <- z+runif(length(z),0,1)
+    z <- z+runif(length(z),-0.5,0.5)
 
     if(!is.null(digits))
         z <- round(z, digits)
@@ -49,7 +49,7 @@ interp_pearson <-
         comments <- comments[!grepl("^#\\s+cols:", comments)]
         comments <- comments[!grepl("^#\\s+rows:", comments)]
 
-        cat(comments, file=output)
+        cat(paste0(comments, "\n", collapse=""), file=output)
         write.table(z, output, row.names=FALSE, col.names=TRUE,
                 quote=FALSE, sep=",", append=TRUE)
         return(invisible(z))
